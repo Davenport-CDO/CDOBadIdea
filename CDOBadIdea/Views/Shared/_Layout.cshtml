@@ -1,0 +1,23 @@
+﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CDO Bank</title>
+
+    <link href="~/bulma/bulma.css" rel="stylesheet" />
+    <link href="~/custom.css" rel="stylesheet" />
+</head>
+<body>
+    <section class="hero">
+        <div class="hero-body">
+            <div class="container">
+                <a href="/"><img src="~/logo.png" /></a>
+            </div>
+        </div>
+    </section>
+
+    @RenderBody()
+</body>
+</html>
