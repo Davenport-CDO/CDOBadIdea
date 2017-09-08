@@ -9,5 +9,6 @@ namespace CDOBadIdea.App
     {
         public IEnumerable<SSN> SocialSecurityNumbers { get; set; }
         public IEnumerable<BlogPost> Posts { get; set; }
+        public IEnumerable<string> Usernames { get; set; }
     }
 }

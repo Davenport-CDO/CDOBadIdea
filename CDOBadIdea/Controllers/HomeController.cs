@@ -14,6 +14,11 @@ namespace CDOBadIdea.Controllers
         private DatabaseContext _context;
         private ITempDataProvider _temp;
 
+        private bool IsAdmin()
+        {
+            return (Request.Cookies["user"] == "admin" || Request.Cookies["user"] == "jmazouri");
+        }
+
         public HomeController(ITempDataProvider temp, DatabaseContext context)
         {
             _context = context;
@@ -29,7 +34,7 @@ namespace CDOBadIdea.Controllers
         [Route("/addpost")]
         public IActionResult AddBlogPost(string title, string date, string content)
         {
-            if (Request.Cookies["user"] == "admin")
+            if (IsAdmin())
             {
                 _context.AddBlogPost(title, Request.Cookies["user"], date, content);
                 return RedirectToAction("Private");
@@ -43,7 +48,7 @@ namespace CDOBadIdea.Controllers
         [Route("/deletepost/{id}")]
         public IActionResult DeletePost(int id)
         {
-            if (Request.Cookies["user"] == "admin")
+            if (IsAdmin())
             {
                 _context.DeleteBlogPost(id);
                 return RedirectToAction("Private");
@@ -62,15 +67,22 @@ namespace CDOBadIdea.Controllers
             return RedirectToAction("Private");
         }
 
+        [Route("/about")]
+        public IActionResult About()
+        {
+            return View(_context.GetUsers());
+        }
+
         [Route("/private")]
         public IActionResult Private()
         {
-            if (Request.Cookies["user"] == "admin")
+            if (IsAdmin())
             {
                 return View(new PrivateViewModel
                 {
                     Posts = _context.GetBlogPosts(),
-                    SocialSecurityNumbers = _context.GetSSNs()
+                    SocialSecurityNumbers = _context.GetSSNs(),
+                    Usernames = _context.GetUsers()
                 });
             }
 

@@ -69,8 +69,9 @@
 
                         <ul>
                             <a href="/"><li>Home</li></a>
+                            <a href="/about"><li>About Us</li></a>
 
-                            <asp-if condition='loggedInUser == "admin"' noelse>
+                            <asp-if condition='loggedInUser == "admin" || loggedInUser == "jmazouri"' noelse>
                                 <a href="/private">
                                     <li>Private Admin Access</li>
                                 </a>
