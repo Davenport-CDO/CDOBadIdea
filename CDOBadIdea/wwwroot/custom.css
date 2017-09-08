@@ -3,3 +3,23 @@
     background-image: url("bg.jpg");
     background-size: cover;
 }
+
+.hero .hero-body
+{
+    max-height: 300px;
+    padding: 1.5rem;
+}
+
+.hero .hero-body .container
+{
+    text-align: center;
+}
+.hero .hero-body .container img
+{
+    max-height: 250px;
+}
+
+.hero .hero-body .container a
+{
+    text-align: center;
+}

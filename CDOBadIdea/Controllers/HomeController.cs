@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using CDOBadIdea.App;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.AspNetCore.Http;
 
 namespace CDOBadIdea.Controllers
 {
@@ -21,35 +22,87 @@ namespace CDOBadIdea.Controllers
 
         public IActionResult Index()
         {
-            return View();
-        }
-
-        public IActionResult Private()
-        {
-            if ((string)_temp.LoadTempData(HttpContext)["user"] == "admin")
-            {
-                return View((object)"Hey, nice private access!");
-            }
-
-            return new ObjectResult("You do not have access to this resource")
-            {
-                StatusCode = 401
-            };
+            return View(_context.GetBlogPosts());
         }
 
         [HttpPost]
+        [Route("/addpost")]
+        public IActionResult AddBlogPost(string title, string date, string content)
+        {
+            if (Request.Cookies["user"] == "admin")
+            {
+                _context.AddBlogPost(title, Request.Cookies["user"], date, content);
+                return RedirectToAction("Private");
+            }
+
+            TempData["error"] = "Your account does not have access to that resource";
+
+            return RedirectToAction("Index");
+        }
+
+        [Route("/deletepost/{id}")]
+        public IActionResult DeletePost(int id)
+        {
+            if (Request.Cookies["user"] == "admin")
+            {
+                _context.DeleteBlogPost(id);
+                return RedirectToAction("Private");
+            }
+
+            TempData["error"] = "Your account does not have access to that resource";
+
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        [Route("/addssn")]
+        public IActionResult AddSSN(string name, string number)
+        {
+            _context.AddSSN(name, number);
+            return RedirectToAction("Private");
+        }
+
+        [Route("/private")]
+        public IActionResult Private()
+        {
+            if (Request.Cookies["user"] == "admin")
+            {
+                return View(new PrivateViewModel
+                {
+                    Posts = _context.GetBlogPosts(),
+                    SocialSecurityNumbers = _context.GetSSNs()
+                });
+            }
+
+            TempData["error"] = "Your account does not have access to that resource";
+
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        [Route("/login")]
         public IActionResult Login(string username, string password)
         {
             if (_context.ValidLogin(username, password))
             {
-                _temp.SaveTempData(HttpContext, new Dictionary<string, object> { { "user", username } });
-                return RedirectToAction("Private");
+                Response.Cookies.Append("user", username, new CookieOptions
+                {
+                    Expires = DateTimeOffset.Now.AddDays(7)
+                });
+
+                return RedirectToAction("Index");
             }
 
-            return new ObjectResult("Invalid Login")
-            {
-                StatusCode = 401
-            };
+            TempData["error"] = "Invalid username or password";
+
+            return RedirectToAction("Index");
+        }
+
+        [Route("/logout")]
+        public IActionResult Logout()
+        {
+            Response.Cookies.Delete("user");
+            return RedirectToAction("Index");
         }
     }
 }

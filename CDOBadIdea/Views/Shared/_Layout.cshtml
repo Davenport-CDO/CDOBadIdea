@@ -1,4 +1,20 @@
 ﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@addTagHelper "*, CDOBadIdea"
+@inject ITempDataProvider temp
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@inject CDOBadIdea.App.DatabaseContext DatabaseContext
+@{ 
+    string loggedInUser = "";
+    HttpContextAccessor.HttpContext.Request.Cookies.TryGetValue("user", out loggedInUser);
+
+    bool loggedOut = String.IsNullOrWhiteSpace(loggedInUser?.ToString());
+
+    if (!String.IsNullOrWhiteSpace(loggedInUser) && !DatabaseContext.UserExists(loggedInUser))
+    {
+        HttpContextAccessor.HttpContext.Response.Redirect("/logout");
+    }
+}
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -18,6 +34,67 @@
         </div>
     </section>
 
-    @RenderBody()
+    <asp-if condition='TempData.ContainsKey("error")' noelse>
+        <div class="notification is-danger">
+            @TempData["error"]
+        </div>
+    </asp-if>
+    
+    <div class="container">
+    <div class="columns">
+        <div class="column is-one-third">
+            <section class="section">
+                <asp-if condition="loggedOut">
+
+                    <asp-true>
+                        <form action="/login" method="post">
+                            <div class="field">
+                                <label class="label">Username</label>
+                                <div class="control">
+                                    <input class="input" type="text" name="username">
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label class="label">Password</label>
+                                <div class="control">
+                                    <input class="input" type="password" name="password">
+                                </div>
+                            </div>
+                            <button class="button is-success" type="submit">Log In</button>
+                        </form>
+                    </asp-true>
+
+                    <asp-false>
+                        <h1 class="title">Hello there, @loggedInUser!</h1>
+
+                        <ul>
+                            <a href="/"><li>Home</li></a>
+
+                            <asp-if condition='loggedInUser == "admin"' noelse>
+                                <a href="/private">
+                                    <li>Private Admin Access</li>
+                                </a>
+                            </asp-if>
+
+                            <li>&nbsp;</li>
+
+                            <a class="button is-danger" href="/logout">
+                                Log Out
+                            </a>
+                        </ul>
+
+                    </asp-false>
+
+                </asp-if>
+            </section>
+
+        </div>
+
+        <div class="column is-two-thirds">
+            @RenderBody()
+        </div>
+    </div>
+    </div>
+
 </body>
 </html>

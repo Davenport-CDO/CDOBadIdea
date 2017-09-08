@@ -1,12 +1,106 @@
-﻿
+﻿@model CDOBadIdea.App.PrivateViewModel
 @{
     ViewData["Title"] = "Private";
 }
 
 <section class="section">
-    <h1 class="title">Private</h1>
-    <p>
-        Hello, Admin. Welcome to the private section, where you can access all the social security numbers
-        of our members. Please sign out when you're done.
-    </p>
+    <h1 class="title">Social Security Numbers</h1>
+
+    <table class="table is-fullwidth is-striped">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>SSN</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var ssn in Model.SocialSecurityNumbers)
+            {
+                <tr>
+                    <td>@ssn.Name</td>
+                    <td>@ssn.Number</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <form action="/addssn" method="post" onsubmit="return verify()">
+        <div class="field">
+            <label class="label">Name</label>
+            <div class="control">
+                <input class="input" type="text" name="name">
+            </div>
+        </div>
+        <div class="field">
+            <label class="label">SSN</label>
+            <div class="control">
+                <input class="input" type="text" id="numberInput" name="number">
+            </div>
+        </div>
+        <button class="button is-success" type="submit">Add</button>
+    </form>
 </section>
+
+<section class="section">
+    <h2 class="title">Blog Posts</h2>
+
+    <table class="table is-fullwidth is-striped">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var post in Model.Posts)
+            {
+                <tr>
+                    <td>@post.Title</td>
+                    <td>
+                        <a class="button is-danger" href="/deletepost/@post.Id">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <form action="/addpost" method="post">
+
+        <div class="field">
+            <label class="label">Title</label>
+            <div class="control">
+                <input class="input" type="text" name="title">
+            </div>
+        </div>
+        <div class="field">
+            <label class="label">Content <small>(full html is allowed)</small></label>
+            <div class="control">
+                <textarea class="textarea" name="content"></textarea>
+            </div>
+        </div>
+
+        <input type="hidden" name="date" value="@DateTime.Now.ToShortDateString()" />
+
+        <button class="button is-success" type="submit">Post</button>
+    </form>
+</section>
+
+<script>
+    function verify(event)
+    {
+        var regex = /(^\d{3}-?\d{2}-?\d{4}$|^XXX-XX-XXXX$)/g;
+        var ssn = document.getElementById("numberInput").value;
+
+        if (!ssn)
+        {
+            alert("You must provide an SSN!");
+            return false;
+        }
+
+        if (!ssn.match(regex))
+        {
+            alert("Your SSN is in an invalid format.");
+            return false;
+        }
+    }
+</script>

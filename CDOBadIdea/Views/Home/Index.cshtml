@@ -1,42 +1,20 @@
-﻿@addTagHelper "*, Microsoft.AspNetCore.Mvc.TagHelpers"
-@addTagHelper "*, CDOBadIdea"
-@inject ITempDataProvider temp
+﻿@model IEnumerable<CDOBadIdea.App.BlogPost>
+@addTagHelper "*, Microsoft.AspNetCore.Mvc.TagHelpers"
 @{
     ViewData["Title"] = "Index";
-    bool loggedOut = temp.LoadTempData(Context).Count == 0;
 }
 
-<div class="columns">
-
-    <div class="column is-one-third" asp-if="loggedOut">
-        <section class="section">
-            <form action="/home/login" method="post">
-                <div class="field">
-                    <label class="label">Username</label>
-                    <div class="control">
-                        <input class="input" type="text" name="username">
-                    </div>
-                </div>
-                <div class="field">
-                    <label class="label">Password</label>
-                    <div class="control">
-                        <input class="input" type="password" name="password">
-                    </div>
-                </div>
-                <button type="submit">Log In</button>
-            </form>
-        </section>
-    </div>
-
-    <div class="column is-two-thirds">
-        <section class="section">
-            <h1 class="title">Home</h1>
-            <p>
-                Welcome to CDO Credit Union. We provide a safe, secure location to deposit your savings, get loans,
-                and do all your banking. Our new online banking system is up and running - please feel free to log in
-                below and contact support if you have any issues.
-            </p>
-        </section>
-    </div>
-
-</div>
+@foreach (var post in Model)
+{
+    <section class="section">
+        <h1 class="title">
+            @post.Title
+        </h1>
+        <h2 class="subtitle">
+            @post.Author @@ @post.Date
+        </h2>
+        <p>
+            @Html.Raw(post.Content)
+        </p>
+    </section>
+}
